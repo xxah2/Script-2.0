@@ -1,3 +1,5 @@
+hhh2 
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -12,17 +14,18 @@ gui.Name = "ModMenuIcon"
 local iconButton = Instance.new("TextButton", gui)
 iconButton.Size = UDim2.new(0, 60, 0, 60)
 iconButton.Position = UDim2.new(0, 20, 0, 100)
-iconButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+iconButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 iconButton.Text = "G"
 iconButton.TextScaled = true
-iconButton.TextColor3 = Color3.new(1, 1, 1)
+iconButton.TextColor3 = Color3.fromRGB(200, 200, 200)
 iconButton.Font = Enum.Font.GothamBold
 iconButton.BorderSizePixel = 0
 iconButton.ClipsDescendants = true
+iconButton.AutoButtonColor = true
 local corner = Instance.new("UICorner", iconButton)
 corner.CornerRadius = UDim.new(1, 0)
 
--- Dragging variables
+-- Variables para drag
 local dragging = false
 local dragInput
 local dragStart
@@ -64,37 +67,49 @@ UserInputService.InputChanged:Connect(function(input)
 	end
 end)
 
--- Menú desplegable con scroll
+-- Menú desplegable con scroll y diseño mejorado
 local menuFrame = Instance.new("Frame", gui)
-menuFrame.Size = UDim2.new(0, 200, 0, 0)
+menuFrame.Size = UDim2.new(0, 220, 0, 0) -- empieza cerrado
 menuFrame.Position = UDim2.new(0, 20, 0, 160)
-menuFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+menuFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 menuFrame.BorderSizePixel = 0
 menuFrame.ClipsDescendants = true
 local frameCorner = Instance.new("UICorner", menuFrame)
-frameCorner.CornerRadius = UDim.new(0, 10)
+frameCorner.CornerRadius = UDim.new(0, 12)
 
 local scrollFrame = Instance.new("ScrollingFrame", menuFrame)
-scrollFrame.Size = UDim2.new(1, 0, 1, 0)
+scrollFrame.Size = UDim2.new(1, -10, 1, -10)
+scrollFrame.Position = UDim2.new(0, 5, 0, 5)
 scrollFrame.BackgroundTransparency = 1
 scrollFrame.BorderSizePixel = 0
-scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 100)
-scrollFrame.ScrollBarThickness = 6
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.ScrollBarThickness = 8
+scrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 
 local uiListLayout = Instance.new("UIListLayout", scrollFrame)
-uiListLayout.Padding = UDim.new(0, 5)
+uiListLayout.Padding = UDim.new(0, 8)
 uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+local uiPadding = Instance.new("UIPadding", scrollFrame)
+uiPadding.PaddingTop = UDim.new(0, 5)
+uiPadding.PaddingBottom = UDim.new(0, 5)
+uiPadding.PaddingLeft = UDim.new(0, 5)
+uiPadding.PaddingRight = UDim.new(0, 5)
 
 -- Noclip switch button
 local noclipEnabled = false
 local noclipButton = Instance.new("TextButton", scrollFrame)
-noclipButton.Size = UDim2.new(1, -10, 0, 40)
-noclipButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-noclipButton.TextColor3 = Color3.new(1, 1, 1)
+noclipButton.Size = UDim2.new(1, 0, 0, 45)
+noclipButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+noclipButton.TextColor3 = Color3.fromRGB(220, 220, 220)
 noclipButton.Font = Enum.Font.GothamBold
 noclipButton.TextSize = 18
 noclipButton.Text = "Noclip: OFF"
 noclipButton.LayoutOrder = 1
+noclipButton.AutoButtonColor = true
+noclipButton.BorderSizePixel = 0
+local btnCorner = Instance.new("UICorner", noclipButton)
+btnCorner.CornerRadius = UDim.new(0, 8)
 
 -- Función para activar/desactivar noclip
 local function setNoclip(enabled)
@@ -118,7 +133,14 @@ noclipButton.MouseButton1Click:Connect(function()
 	setNoclip(noclipEnabled)
 end)
 
--- Ajustar CanvasSize para que el scroll funcione bien
+-- Mantener noclip activo todo el tiempo mientras esté activado
+RunService.Stepped:Connect(function()
+	if noclipEnabled then
+		setNoclip(true)
+	end
+end)
+
+-- Ajustar CanvasSize para que scroll funcione bien
 local function updateCanvas()
 	local contentSize = uiListLayout.AbsoluteContentSize
 	scrollFrame.CanvasSize = UDim2.new(0, 0, 0, contentSize.Y + 10)
@@ -131,22 +153,23 @@ local menuOpen = false
 
 local function toggleMenu()
 	if menuOpen then
-		TweenService:Create(menuFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 200, 0, 0)}):Play()
+		TweenService:Create(menuFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 220, 0, 0)}):Play()
 		menuOpen = false
 	else
 		local contentSize = uiListLayout.AbsoluteContentSize
-		local height = math.clamp(contentSize.Y + 20, 100, 300) -- limite de tamaño visible
-		TweenService:Create(menuFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 200, 0, height)}):Play()
+		local height = math.clamp(contentSize.Y + 20, 100, 350)
+		TweenService:Create(menuFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 220, 0, height)}):Play()
 		menuOpen = true
 	end
 end
 
 iconButton.MouseButton1Click:Connect(toggleMenu)
 
-menuFrame.Size = UDim2.new(0, 200, 0, 0)
+-- Iniciar cerrado
+menuFrame.Size = UDim2.new(0, 220, 0, 0)
 menuOpen = false
 
--- Limpieza: en caso de salir con noclip activado
+-- Reaplicar noclip si el personaje respawnea
 LocalPlayer.CharacterAdded:Connect(function()
 	if noclipEnabled then
 		setNoclip(true)
